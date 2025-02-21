@@ -1,4 +1,5 @@
-use crate::world::Direction;
+use crate::direction::Direction;
+
 use macroquad::audio::{play_sound, PlaySoundParams, Sound};
 use macroquad::color::{Color, WHITE};
 use macroquad::math::{Rect, Vec2};
