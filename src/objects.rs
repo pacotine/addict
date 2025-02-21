@@ -28,61 +28,106 @@ impl Entity {
         self.rect().overlaps(&weapon.rect())
     }
 
+    /*
     pub fn switch_direction(&mut self, other: &mut Self) {
-        let other_rect = other.rect();
-        let left_edge = Rect{
-            x: self.rect().left(),
-            y: self.rect().top(),
-            w: 1.0,
-            h: self.size,
-        };
-        let right_edge = Rect{
-            x: self.rect().right(),
-            y: self.rect().top(),
-            w: 1.0,
-            h: self.size,
-        };
-        let top_edge = Rect{
-            x: self.rect().left(),
-            y: self.rect().top(),
-            w: self.size,
-            h: 1.0,
-        };
-        let bottom_edge = Rect{
-            x: self.rect().left(),
-            y: self.rect().bottom(),
-            w: self.size,
-            h: 1.0,
-        };
+        let rect1 = self.rect();
+        let rect2 = other.rect();
 
-        if other_rect.overlaps(&top_edge) {
-            //draw_rectangle_lines(top_edge.x, top_edge.y, top_edge.w, top_edge.h, 1.0, RED);
-            other.direction_y.switch();
-            if other.direction_y == self.direction_y { self.direction_y.switch(); }
+        let left = rect1.x.max(rect2.x);
+        let right = (rect1.x + rect1.w).min(rect2.x + rect2.w);
+        let top = rect1.y.max(rect2.y);
+        let bottom = (rect1.y + rect1.h).min(rect2.y + rect2.h);
+        let overlap_x = right - left;
+        let overlap_y = bottom - top;
+
+        if overlap_x > 0.0 && overlap_y > 0.0 {
+            if overlap_x < overlap_y {
+                self.direction_x.switch();
+                other.direction_x.switch();
+
+                let dx = rect1.x - rect2.x;
+                let separation = overlap_x / 2.0;
+                if dx < 0.0 {
+                    self.x -= separation;
+                    other.x += separation;
+                } else {
+                    self.x += separation;
+                    other.x -= separation;
+                }
+            } else {
+                self.direction_y.switch();
+                other.direction_y.switch();
+
+                let dy = rect1.y - rect2.y;
+                let separation = overlap_y / 2.0;
+                if dy < 0.0 {
+                    self.y -= separation;
+                    other.y += separation;
+                } else {
+                    self.y += separation;
+                    other.y -= separation;
+                }
+            }
         }
-        else if other_rect.overlaps(&bottom_edge) {
-            //draw_rectangle_lines(bottom_edge.x, bottom_edge.y, bottom_edge.w, bottom_edge.h, 1.0, RED);
-            other.direction_y.switch();
-            if other.direction_y == self.direction_y { self.direction_y.switch(); } //well...no?
+     */
+
+    pub fn switch_direction(&mut self, other: &mut Self) {
+        let rect1 = self.rect();
+        let rect2 = other.rect();
+
+        let left = rect1.x.max(rect2.x);
+        let right = (rect1.x + rect1.w).min(rect2.x + rect2.w);
+        let top = rect1.y.max(rect2.y);
+        let bottom = (rect1.y + rect1.h).min(rect2.y + rect2.h);
+        let overlap_x = right - left;
+        let overlap_y = bottom - top;
+
+        if overlap_x > 0.0 && overlap_y > 0.0 {
+            let max_speed = self.speed.max(other.speed);
+            if overlap_x < overlap_y {
+                println!("X direction =? {}", self.direction_x == other.direction_x);
+                if self.direction_x == other.direction_x {
+                    if self.speed == max_speed { self.direction_x.switch(); }
+                    if other.speed == max_speed { other.direction_x.switch(); }
+                } else {
+                    self.direction_x.switch();
+                    other.direction_x.switch();
+                }
+
+                let dx = rect1.x - rect2.x;
+                let separation = overlap_x / 2.0;
+                if dx < 0.0 {
+                    self.x -= separation;
+                    other.x += separation;
+                } else {
+                    self.x += separation;
+                    other.x -= separation;
+                }
+            } else {
+                println!("Y direction =? {}", self.direction_y == other.direction_y);
+                if self.direction_y == other.direction_y {
+                    if self.speed == max_speed { self.direction_y.switch(); }
+                    if other.speed == max_speed { other.direction_y.switch(); }
+                } else {
+                    self.direction_y.switch();
+                    other.direction_y.switch();
+                }
+
+                let dy = rect1.y - rect2.y;
+                let separation = overlap_y / 2.0;
+                if dy < 0.0 {
+                    self.y -= separation;
+                    other.y += separation;
+                } else {
+                    self.y += separation;
+                    other.y -= separation;
+                }
+            }
         }
-        if other_rect.overlaps(&left_edge) {
-            //draw_rectangle_lines(left_edge.x, left_edge.y, left_edge.w, left_edge.h, 1.0, GREEN);
-            other.direction_x.switch();
-            if other.direction_x == self.direction_x { self.direction_x.switch(); }
-        }
-        else if other_rect.overlaps(&right_edge) {
-            //draw_rectangle_lines(right_edge.x, right_edge.y, right_edge.w, right_edge.h, 1.0, GREEN);
-            other.direction_x.switch();
-            if other.direction_x == self.direction_x { self.direction_x.switch(); }
-        }
+
 
         if self.is_killer { self.kill(other); }
         else if other.is_killer { other.kill(self); }
-
-        if self.rect().overlaps(&other.rect()) {
-            self.move_frame();
-            other.move_frame();
-        }
     }
 
     pub fn move_frame(&mut self) {

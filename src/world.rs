@@ -84,10 +84,8 @@ impl World {
         else if self.entity2.is_killer { self.entity2.attach_weapon(&self.sword); }
 
         //check collisions
-        if self.entity1.collides_with(&self.entity2) && self.entity1.speed <= self.entity2.speed {
+        if self.entity1.collides_with(&self.entity2) {
             self.entity1.switch_direction(&mut self.entity2);
-        } else if self.entity2.collides_with(&self.entity1) && self.entity2.speed <= self.entity1.speed {
-            self.entity2.switch_direction(&mut self.entity1);
         }
 
         let temp_e1_x = self.entity1.x;
