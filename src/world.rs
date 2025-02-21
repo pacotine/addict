@@ -1,7 +1,7 @@
 use crate::direction::Direction;
 use crate::objects::{Entity, Weapon};
 
-use macroquad::audio::load_sound;
+use macroquad::audio::{load_sound, play_sound, PlaySoundParams, Sound};
 use macroquad::color::WHITE;
 use macroquad::math::{clamp, Rect, Vec2};
 use macroquad::prelude::{draw_rectangle_lines, draw_texture_ex, load_image, rand, screen_height, screen_width, DrawTextureParams, Texture2D};
@@ -12,6 +12,7 @@ const SPEED_BOOST: f32 = 100.0;
 pub struct World {
     pub entity1: Entity,
     pub entity2: Entity,
+    edges_sound: Sound,
     sword: Weapon, //need to fix this and make a Vec<Weapon>
     rabbit: Weapon,
 }
@@ -20,9 +21,14 @@ impl World {
     pub async fn new() -> World {
         let entity1 = Self::generate_entity("Ronaldo","assets/siuuu.wav", "assets/ronaldo.png").await;
         let entity2 = Self::generate_entity("Messi", "assets/messi.wav", "assets/messi.png").await;
+        let edges_sound = match load_sound("assets/collision.wav").await {
+            Ok(sound) => sound,
+            Err(e) => panic!("Can't open audio: {e:?}")
+        };
         let mut world = Self {
             entity1,
             entity2,
+            edges_sound,
             sword: Self::generate_weapon("assets/sword.png", Box::new(|e| e.is_killer = true)).await,
             rabbit: Self::generate_weapon("assets/rabbit.png", Box::new(|e| e.speed += SPEED_BOOST)).await,
         };
@@ -99,6 +105,17 @@ impl World {
         self.entity2.x = clamp(self.entity2.x, edges.x, edges.x + edges.w - self.entity2.size);
         self.entity2.y = clamp(self.entity2.y, edges.y, edges.y + edges.h - self.entity2.size);
         self.entity2.check_bounce(temp_e2_x, temp_e2_y);
+
+        if self.entity1.x != temp_e1_x
+            || self.entity1.y != temp_e1_y
+            || self.entity2.x != temp_e2_x
+            || self.entity2.y != temp_e2_y
+        {
+            play_sound(&self.edges_sound, PlaySoundParams{
+                looped: false,
+                volume: 1.0,
+            });
+        }
     }
 
     fn set_weapons_catchable(&mut self) {
