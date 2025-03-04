@@ -4,7 +4,8 @@ use crate::objects::{Entity, Weapon};
 use macroquad::audio::{load_sound, play_sound, PlaySoundParams, Sound};
 use macroquad::color::WHITE;
 use macroquad::math::{clamp, Rect, Vec2};
-use macroquad::prelude::{draw_rectangle_lines, draw_texture_ex, load_image, rand, screen_height, screen_width, DrawTextureParams, Texture2D};
+use macroquad::prelude::{draw_rectangle_lines, draw_text, draw_texture_ex, load_image, measure_text, rand, screen_height, screen_width, DrawTextureParams, Texture2D};
+use crate::FONT_SIZE;
 
 const INIT_SPEED: f32 = 200.0;
 const SPEED_BOOST: f32 = 100.0;
@@ -69,6 +70,25 @@ impl World {
 
     pub fn entity_size(&self) -> f32 {
         0.1*self.edges().w
+    }
+
+    pub fn update_text(&self) {
+        self.draw_entity_text(&self.entity1, 0.0);
+        self.draw_entity_text(&self.entity2, 15.0);
+    }
+
+    fn draw_entity_text(&self, entity: &Entity, pad: f32) {
+        let edges = self.edges();
+        let font_size = FONT_SIZE * screen_width() / 960.0;
+        let score_entity = format!("{} (speed {}km/s): {}", entity.name, entity.speed, entity.score);
+        let dim_score = measure_text(score_entity.as_str(), None, font_size as u16, 1.0);
+        draw_text(
+            score_entity.as_str(),
+            edges.x + edges.w / 2.0 - dim_score.width / 2.0,
+            edges.y / 2.0 - dim_score.height + pad * 2.0,
+            font_size,
+            WHITE
+        );
     }
 
     fn init(&mut self) {

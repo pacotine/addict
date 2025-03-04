@@ -21,28 +21,6 @@ fn conf() -> Conf {
     }
 }
 
-fn update_text(edges: Rect, entity1: &Entity, entity2: &Entity) {
-    let score_entity = format!("{} (speed {}km/h): {}", entity1.name, entity1.speed, entity1.score);
-    let font_size = FONT_SIZE * screen_width() / 960.0;
-    let dim_score_e1 = measure_text(score_entity.as_str(), None, font_size as u16, 1.0);
-    draw_text(
-        score_entity.as_str(),
-        edges.x + edges.w / 2.0 - dim_score_e1.width / 2.0,
-        edges.y / 2.0 - dim_score_e1.height,
-        font_size,
-        WHITE
-    );
-    let score_entity = format!("{} (speed {}km/s): {}", entity2.name, entity2.speed, entity2.score);
-    let dim_score_e2 = measure_text(score_entity.as_str(), None, font_size as u16, 1.0);
-    draw_text(
-        score_entity.as_str(),
-        edges.x + edges.w / 2.0 - dim_score_e2.width / 2.0,
-        edges.y / 2.0 - dim_score_e2.height + dim_score_e1.height * 2.0,
-        font_size,
-        WHITE
-    );
-}
-
 fn show_winner(winner: &Entity) {
     let winner_text = format!("Winner: {}", winner.name);
     let dim_winner = measure_text(winner_text.as_str(), None, 20, 1.0);
@@ -87,7 +65,7 @@ async fn main() {
             if play {
                 world.update();
 
-                update_text(world.edges(), &world.entity1, &world.entity2);
+                world.update_text();
             } //end resume
         }
         next_frame().await
