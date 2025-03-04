@@ -42,7 +42,6 @@ impl Entity {
         if overlap_x > 0.0 && overlap_y > 0.0 {
             let max_speed = self.speed.max(other.speed);
             if overlap_x < overlap_y {
-                println!("X direction =? {}", self.direction_x == other.direction_x);
                 if self.direction_x == other.direction_x {
                     if self.speed == max_speed { self.direction_x.switch(); }
                     if other.speed == max_speed { other.direction_x.switch(); }
@@ -61,7 +60,6 @@ impl Entity {
                     other.x -= separation;
                 }
             } else {
-                println!("Y direction =? {}", self.direction_y == other.direction_y);
                 if self.direction_y == other.direction_y {
                     if self.speed == max_speed { self.direction_y.switch(); }
                     if other.speed == max_speed { other.direction_y.switch(); }
